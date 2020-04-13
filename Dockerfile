@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # This project is a fork of: https://github.com/janeczku/docker-dropbox
 
 # Following 'How do I add or remove Dropbox from my Linux repository?' - https://www.dropbox.com/en/help/246
-RUN deb http://linux.dropbox.com/debiattp://linux.dropbox.com/debian jessie main' > /etc/n jessie main' > /etc/apt/sources.list.d/dropbox.list
+RUN echo 'deb http://linux.dropbox.com/debian jessie main' > /etc/apt/sources.list.d/dropbox.list
 RUN apt-key adv --keyserver pgp.mit.edu --recv-keys 1C61A2656FB57B7E4DE0F4C1FC918B335044912E
 RUN apt-get -qqy update'
 
