@@ -44,10 +44,10 @@ RUN mkdir -p /opt/dropbox \
 	&& mv /usr/bin/dropbox /usr/bin/dropbox-cli
 
 # Install init script and dropbox command line wrapper
-COPY run /root/
+COPY run.sh /root/
 COPY dropbox /usr/bin/dropbox
 
 WORKDIR /dbox/Dropbox
 EXPOSE 17500
 VOLUME ["/dbox/.dropbox", "/dbox/Dropbox"]
-ENTRYPOINT ["/root/run"]
+ENTRYPOINT ["/root/run.sh"]
