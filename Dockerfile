@@ -1,22 +1,19 @@
 FROM debian:jessie
-MAINTAINER Ciccio CX <ciccio.groucho@tiscali.it>
+MAINTAINER Jan Broer <janeczku@yahoo.de>
 ENV DEBIAN_FRONTEND noninteractive
 
-# This project is a fork of: https://github.com/janeczku/docker-dropbox
-
 # Following 'How do I add or remove Dropbox from my Linux repository?' - https://www.dropbox.com/en/help/246
-RUN echo 'deb http://linux.dropbox.com/debian jessie main' > /etc/apt/sources.list.d/dropbox.list
-RUN apt-key adv --keyserver pgp.mit.edu --recv-keys 1C61A2656FB57B7E4DE0F4C1FC918B335044912E
-RUN apt-get -qqy update
-
+RUN echo 'deb http://linux.dropbox.com/debian jessie main' > /etc/apt/sources.list.d/dropbox.list \
+	&& apt-key adv --keyserver pgp.mit.edu --recv-keys 1C61A2656FB57B7E4DE0F4C1FC918B335044912E \
+	&& apt-get -qqy update \
 	# Note 'ca-certificates' dependency is required for 'dropbox start -i' to succeed
-RUN apt-get -qqy install ca-certificates curl python-gpgme dropbox
+	&& apt-get -qqy install ca-certificates curl python-gpgme dropbox \
 	# Perform image clean up.
-RUN apt-get -qqy autoclean
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+	&& apt-get -qqy autoclean \
+	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
 	# Create service account and set permissions.
-RUN groupadd dropbox
-RUN useradd -m -d /dbox -c "Dropbox Daemon Account" -s /usr/sbin/nologin -g dropbox dropbox
+	&& groupadd dropbox \
+	&& useradd -m -d /dbox -c "Dropbox Daemon Account" -s /usr/sbin/nologin -g dropbox dropbox
 
 # Dropbox is weird: it insists on downloading its binaries itself via 'dropbox
 # start -i'. So we switch to 'dropbox' user temporarily and let it do its thing.
@@ -45,10 +42,10 @@ RUN mkdir -p /opt/dropbox \
 	&& mv /usr/bin/dropbox /usr/bin/dropbox-cli
 
 # Install init script and dropbox command line wrapper
-COPY run.sh /root/
+COPY run /root/
 COPY dropbox /usr/bin/dropbox
 
 WORKDIR /dbox/Dropbox
 EXPOSE 17500
 VOLUME ["/dbox/.dropbox", "/dbox/Dropbox"]
-ENTRYPOINT ["/root/run.sh"]
+ENTRYPOINT ["/root/run"]
