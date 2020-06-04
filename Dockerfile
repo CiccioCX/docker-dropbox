@@ -7,10 +7,11 @@ RUN echo 'deb http://linux.dropbox.com/debian jessie main' > /etc/apt/sources.li
 	&& apt-key adv --keyserver pgp.mit.edu --recv-keys 1C61A2656FB57B7E4DE0F4C1FC918B335044912E \
 	&& apt-get -qqy update \
 	# Note 'ca-certificates' dependency is required for 'dropbox start -i' to succeed
-	&& apt-get -qqy install ca-certificates curl python-gpgme dropbox \
-	&& apt-get -qqy install libc6 libglapi-mesa libxdamage1 \
-	&& apt-get -qqy install libxfixes3 libxcb-glx0 libxcb-dri2-0 libxcb-dri3-0 \
-	&& apt-get -qqy install libxcb-present0 libxcb-sync1 libxshmfence1 libxxf86vm1 \
+	&& apt-get -qqy install ca-certificates curl python-gpgme dropbox
+
+RUN apt-get -y install libc6 libglapi-mesa libxdamage1
+RUN apt-get -y install libxfixes3 libxcb-glx0 libxcb-dri2-0 libxcb-dri3-0
+RUN apt-get -y install libxcb-present0 libxcb-sync1 libxshmfence1 libxxf86vm1
 
 	# Perform image clean up.
 	&& apt-get -qqy autoclean \
