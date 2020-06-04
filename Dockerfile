@@ -13,12 +13,15 @@ RUN apt-get -y install libc6 libglapi-mesa libxdamage1
 RUN apt-get -y install libxfixes3 libxcb-glx0 libxcb-dri2-0 libxcb-dri3-0
 RUN apt-get -y install libxcb-present0 libxcb-sync1 libxshmfence1 libxxf86vm1
 
-	# Perform image clean up.
-	&& apt-get -qqy autoclean \
+# Perform image clean up.
+RUN apt-get -qqy autoclean \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
 	# Create service account and set permissions.
 	&& groupadd dropbox \
 	&& useradd -m -d /dbox -c "Dropbox Daemon Account" -s /usr/sbin/nologin -g dropbox dropbox
+
+
+
 
 # Dropbox is weird: it insists on downloading its binaries itself via 'dropbox
 # start -i'. So we switch to 'dropbox' user temporarily and let it do its thing.
