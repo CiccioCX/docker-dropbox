@@ -2,38 +2,39 @@ FROM debian:jessie
 
 MAINTAINER Ciccio CX <ciccio.groucho@tiscali.it>
 
-ARG UNAME=dropboxuser
-ARG UID=666
-ARG GID=666
-RUN groupadd -g $GID -o $UNAME
-RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
-CMD /bin/bash
+# This project is a fork of https://github.com/excelsiord/docker-dropbox.git
 
-# Install Python
-RUN \
-  apt-get update && \
-  apt-get install -y python wget libglib2.0-0 libc6 \
+ENV DEBIAN_FRONTEND noninteractive
+
+# Download & install required applications: curl, sudo.
+RUN apt-get -qqy update
+RUN apt-get -qqy install wget python sudo python wget libglib2.0-0 libc6 \
   libglapi-mesa libxdamage1 libxfixes3 libxcb-glx0 libxcb-dri2-0 \
   libxcb-dri3-0 libxcb-present0 libxcb-sync1 libxshmfence1 libxxf86vm1 && \
   apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-#RUN mkdir /dbox && chown -R $UNAME /dbox
+# Create service account and set permissions.
+RUN useradd -d /dbox -c "Dropbox Daemon Account" -s /usr/sbin/nologin dropbox
+RUN mkdir -p /dbox/.dropbox /dbox/.dropbox-dist /dbox/Dropbox /dbox/base
 
+# Download & install current version of dropbox.
+RUN wget -nv -O /dbox/base/dropbox.tar.gz "https://www.dropbox.com/download?plat=lnx.x86_64"
+RUN wget -nv -O /dbox/dropbox.py "https://www.dropbox.com/download?dl=packages/dropbox.py"
 
-#USER $UNAME
-# Download and extract dropbox
-RUN cd ~ && wget -O - "https://www.dropbox.com/download?plat=lnx.x86_64" | tar xzf -
+# Perform image clean up.
+RUN apt-get -qqy autoclean
 
-RUN pwd
+# Set permissions
+RUN chown -R dropbox /dbox
 
+# Install script for managing dropbox init.
+COPY dropbox-start.sh /dbox/
+COPY dropbox /usr/local/bin/
+RUN chmod +x /dbox/dropbox-start.sh /usr/local/bin/dropbox /dbox/dropbox.py
 
-# Expose the Dropbox directory
-VOLUME /root/Dropbox
-VOLUME /root/.dropbox
+VOLUME ["/dbox/.dropbox", "/dbox/.dropbox-dist", "/dbox/Dropbox"]
 
-# Setup the Dropbox CLI
-#ADD https://www.dropbox.com/download?dl=packages/dropbox.py /scripts/dropbox.py
-#RUN chmod 755 /scripts/dropbox.py
+# Dropbox Lan-sync
+EXPOSE 17500
 
-# Start the Dropbox daemon
-ENTRYPOINT  /root/.dropbox-dist/dropboxd
+CMD ["/dbox/dropbox-start.sh"]
